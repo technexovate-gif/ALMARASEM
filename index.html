@@ -2,215 +2,734 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#2563EB" id="metaThemeColor">
   <title>ALMARASEM | Online Site Management</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
     :root {
       --bg-body: #F1F5F9;
-      --bg-sidebar: #1C2434;
+      --bg-sidebar: #0F172A;
       --bg-header: #FFFFFF;
       --bg-card: #FFFFFF;
-      --bg-input: #FAFAFA;
-      --bg-alt: #F8FAFC;
+      --bg-input: #F8FAFC;
+      --bg-alt: #F1F5F9;
       
       --text-main: #64748B;
-      --text-heading: #1C2434;
-      --text-sidebar: #8A99AF;
+      --text-heading: #0F172A;
+      --text-sidebar: #94A3B8;
       --text-sidebar-active: #FFFFFF;
       
-      --primary: #3C50E0;
-      --primary-hover: #3343C2;
-      --danger: #D34053;
-      --success: #219653;
-      --warning: #FFA70B;
+      --primary: #2563EB;
+      --primary-hover: #1D4ED8;
+      --primary-light: rgba(37, 99, 235, 0.08);
+      --danger: #EF4444;
+      --danger-light: rgba(239, 68, 68, 0.1);
+      --success: #10B981;
+      --success-light: rgba(16, 185, 129, 0.1);
+      --warning: #F59E0B;
+      --warning-light: rgba(245, 158, 11, 0.1);
       
       --border-color: #E2E8F0;
-      --sidebar-hover-bg: #333A48;
+      --sidebar-hover-bg: #1E293B;
       
       --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-      --shadow-default: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
-      --shadow-card: 0px 8px 13px -3px rgba(0, 0, 0, 0.07);
+      --shadow-default: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+      --shadow-card: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.03);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
     }
     
     body.dark {
-      --bg-body: #1A222C;
-      --bg-header: #24303F;
-      --bg-card: #24303F;
-      --bg-input: #1D2A39;
-      --bg-alt: #1D2A39;
+      --bg-body: #0B1120;
+      --bg-sidebar: #070B14;
+      --bg-header: #131D31;
+      --bg-card: #131D31;
+      --bg-input: #0B1120;
+      --bg-alt: #1E293B;
       
-      --text-main: #8A99AF;
-      --text-heading: #FFFFFF;
+      --text-main: #94A3B8;
+      --text-heading: #F8FAFC;
+      --text-sidebar: #64748B;
+      --text-sidebar-active: #F8FAFC;
       
-      --border-color: #2E3A47;
+      --primary: #3B82F6;
+      --primary-hover: #60A5FA;
+      --primary-light: rgba(59, 130, 246, 0.15);
+      
+      --danger: #F87171;
+      --danger-light: rgba(248, 113, 113, 0.15);
+      --success: #34D399;
+      --success-light: rgba(52, 211, 153, 0.15);
+      --warning: #FBBF24;
+      --warning-light: rgba(251, 191, 36, 0.15);
+      
+      --border-color: #243047;
+      --sidebar-hover-bg: #131D31;
+      
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+      --shadow-default: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+      --shadow-card: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
     }
     
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
     body {
-      font-family: 'Cairo', sans-serif;
+      font-family: 'Cairo', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background: var(--bg-body);
       color: var(--text-main);
       overflow-x: hidden;
-      transition: background 0.3s, color 0.3s;
+      min-height: 100vh;
+      transition: background 0.3s ease, color 0.3s ease;
+      line-height: 1.5;
     }
     
-    /* Layout */
+    html[dir="ltr"] body {
+      font-family: 'Inter', 'Cairo', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    /* ==========================================================================
+       LOGIN SCREEN
+       ========================================================================== */
+    .login-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: radial-gradient(circle at top right, rgba(37, 99, 235, 0.08), transparent 40%),
+                  radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.05), transparent 40%),
+                  var(--bg-body);
+      position: relative;
+      z-index: 1000;
+    }
+    
+    .login-card {
+      width: 100%;
+      max-width: 440px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 36px 32px;
+      box-shadow: var(--shadow-card);
+      position: relative;
+      animation: scaleUp 0.3s ease-out;
+    }
+    
+    @keyframes scaleUp {
+      from { opacity: 0; transform: scale(0.96) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    
+    .login-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    
+    .btn-tool {
+      background: var(--bg-alt);
+      border: 1px solid var(--border-color);
+      color: var(--text-heading);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+      transition: all 0.2s ease;
+    }
+    .btn-tool:hover {
+      background: var(--border-color);
+    }
+    
+    .login-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    
+    .login-logo-container {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 16px;
+      border-radius: 20px;
+      background: var(--bg-alt);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-sm);
+      padding: 8px;
+      overflow: hidden;
+    }
+    
+    .login-logo-img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    
+    .login-brand-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text-heading);
+      letter-spacing: 0.5px;
+    }
+    
+    .login-brand-subtitle {
+      font-size: 13px;
+      color: var(--text-main);
+      margin-top: 4px;
+    }
+    
+    .login-badge-tag {
+      display: inline-block;
+      margin-top: 10px;
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    
+    .login-form .form-group {
+      margin-bottom: 18px;
+      text-align: inherit;
+    }
+    
+    .input-with-icon {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    
+    .input-with-icon svg.field-icon {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      color: var(--text-main);
+      pointer-events: none;
+    }
+    
+    html[dir="rtl"] .input-with-icon svg.field-icon {
+      right: 14px;
+    }
+    html[dir="ltr"] .input-with-icon svg.field-icon {
+      left: 14px;
+    }
+    
+    html[dir="rtl"] .input-with-icon input {
+      padding-right: 42px;
+      padding-left: 42px;
+    }
+    html[dir="ltr"] .input-with-icon input {
+      padding-left: 42px;
+      padding-right: 42px;
+    }
+    
+    .pwd-toggle-btn {
+      position: absolute;
+      background: transparent;
+      border: none;
+      color: var(--text-main);
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+    }
+    html[dir="rtl"] .pwd-toggle-btn {
+      left: 12px;
+    }
+    html[dir="ltr"] .pwd-toggle-btn {
+      right: 12px;
+    }
+    
+    .login-options {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      font-size: 13px;
+    }
+    
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+    .checkbox-container input {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+    
+    .login-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .btn-login-primary {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 13px 20px;
+      border-radius: var(--radius-sm);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.2s, transform 0.1s;
+      width: 100%;
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+    }
+    .btn-login-primary:hover {
+      background: var(--primary-hover);
+    }
+    .btn-login-primary:active {
+      transform: translateY(1px);
+    }
+    
+    .btn-demo {
+      background: var(--bg-alt);
+      color: var(--text-heading);
+      border: 1px solid var(--border-color);
+      padding: 11px 20px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+      width: 100%;
+    }
+    .btn-demo:hover {
+      background: var(--border-color);
+    }
+    
+    .demo-hint-text {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-main);
+      margin-top: 14px;
+    }
+    
+    .login-footer {
+      text-align: center;
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-color);
+      font-size: 12px;
+      color: var(--text-main);
+    }
+
+    /* ==========================================================================
+       MAIN APP LAYOUT
+       ========================================================================== */
     .app-wrapper {
       display: flex;
       min-height: 100vh;
       width: 100%;
+      position: relative;
     }
     
     /* Sidebar */
     .sidebar {
-      width: 280px;
+      width: 270px;
       background: var(--bg-sidebar);
       color: var(--text-sidebar);
       display: flex;
       flex-direction: column;
       flex-shrink: 0;
-      transition: all 0.3s;
+      transition: all 0.3s ease;
       z-index: 100;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
     }
     
     .sidebar-header {
-      padding: 24px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    }
+    
+    .brand-wrapper {
       display: flex;
       align-items: center;
       gap: 12px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
-    .sidebar-header .brand {
-      font-size: 24px;
-      font-weight: 700;
+    
+    .brand-logo-frame {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    
+    .brand-logo {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .brand-title {
+      font-size: 17px;
+      font-weight: 800;
       color: #FFFFFF;
-      letter-spacing: 1px;
+      letter-spacing: 0.5px;
+      line-height: 1.2;
+    }
+    
+    .brand-subtitle {
+      font-size: 11px;
+      color: var(--text-sidebar);
+      margin-top: 2px;
+    }
+    
+    .sidebar-close-btn {
+      display: none;
+      background: transparent;
+      border: none;
+      color: var(--text-sidebar);
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 6px;
     }
     
     .sidebar-nav {
-      padding: 20px 16px;
+      padding: 16px 12px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
+      flex: 1;
     }
     
     .sidebar-nav a {
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 10px 16px;
+      padding: 11px 14px;
       color: var(--text-sidebar);
       text-decoration: none;
-      border-radius: 6px;
+      border-radius: var(--radius-sm);
       font-weight: 600;
-      font-size: 15px;
-      transition: all 0.2s ease-in-out;
+      font-size: 14px;
+      transition: all 0.2s ease;
       cursor: pointer;
     }
     
-    .sidebar-nav a:hover, .sidebar-nav a.active {
+    .sidebar-nav a:hover {
       background: var(--sidebar-hover-bg);
       color: var(--text-sidebar-active);
     }
     
+    .sidebar-nav a.active {
+      background: var(--primary);
+      color: #FFFFFF;
+      box-shadow: 0 4px 8px rgba(37, 99, 235, 0.3);
+    }
+    
     .sidebar-nav a svg {
-      width: 20px;
-      height: 20px;
+      width: 19px;
+      height: 19px;
+      flex-shrink: 0;
       fill: currentColor;
     }
     
-    /* Main Content */
+    .sidebar-footer {
+      padding: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.07);
+    }
+    
+    .sidebar-logout-btn {
+      width: 100%;
+      background: rgba(239, 68, 68, 0.1);
+      color: #F87171;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: inherit;
+      transition: background 0.2s;
+    }
+    .sidebar-logout-btn:hover {
+      background: rgba(239, 68, 68, 0.2);
+    }
+    
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(2px);
+      z-index: 95;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .sidebar-overlay.active {
+      display: block;
+      opacity: 1;
+    }
+
+    /* Main Content Wrapper */
     .main-wrapper {
       flex: 1;
       display: flex;
       flex-direction: column;
+      min-width: 0;
       overflow-x: hidden;
     }
     
     /* Top Header */
     .top-header {
       background: var(--bg-header);
-      height: 80px;
+      height: 74px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 32px;
+      padding: 0 28px;
       box-shadow: var(--shadow-sm);
       position: sticky;
       top: 0;
       z-index: 90;
+      border-bottom: 1px solid var(--border-color);
+      transition: background 0.3s ease, border-color 0.3s ease;
     }
     
-    .top-header .title-area {
+    .header-left-col {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    
+    .mobile-nav-toggle {
+      display: none;
+      background: var(--bg-alt);
+      border: 1px solid var(--border-color);
+      color: var(--text-heading);
+      border-radius: var(--radius-sm);
+      padding: 8px;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .mobile-brand-display {
+      display: none;
+      align-items: center;
+    }
+    .mobile-header-logo {
+      height: 32px;
+      object-fit: contain;
+    }
+    
+    .title-area {
       display: flex;
       flex-direction: column;
     }
-    .top-header .title-area .title {
-      font-size: 18px;
+    .title-area .title {
+      font-size: 17px;
       font-weight: 700;
       color: var(--text-heading);
+      line-height: 1.2;
     }
-    .top-header .title-area .subtitle {
+    .title-area .subtitle {
       font-size: 12px;
       color: var(--text-main);
+      margin-top: 3px;
     }
     
     .header-actions {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 12px;
     }
-    .date-badge {
-      background: #F1F5F9;
+    
+    .header-action-btn {
+      background: var(--bg-alt);
+      border: 1px solid var(--border-color);
       color: var(--text-heading);
-      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: inherit;
+      transition: all 0.2s ease;
+    }
+    .header-action-btn:hover {
+      background: var(--border-color);
+    }
+    
+    .date-badge {
+      background: var(--bg-alt);
+      color: var(--text-heading);
+      border: 1px solid var(--border-color);
+      padding: 7px 14px;
       border-radius: 20px;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
       display: flex;
       align-items: center;
       gap: 8px;
     }
     
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-alt);
+      border: 1px solid var(--border-color);
+      padding: 4px 10px 4px 6px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .user-chip:hover {
+      background: var(--border-color);
+    }
+    html[dir="rtl"] .user-chip {
+      padding: 4px 6px 4px 10px;
+    }
+    
+    .user-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    
+    .user-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-heading);
+    }
+    
+    .logout-icon-btn {
+      background: transparent;
+      border: none;
+      color: var(--danger);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      padding: 2px;
+    }
+
     /* Page Content */
     .page-container {
-      padding: 32px;
+      padding: 28px;
       flex: 1;
     }
     
-    .page { display: none; animation: fadeIn 0.4s ease; }
-    .page.active { display: block; }
+    .page {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+    .page.active {
+      display: block;
+    }
     
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
+      from { opacity: 0; transform: translateY(8px); }
       to { opacity: 1; transform: translateY(0); }
     }
     
     h2.page-title {
-      font-size: 26px;
-      font-weight: 700;
+      font-size: 22px;
+      font-weight: 800;
       color: var(--text-heading);
-      margin-bottom: 24px;
+      margin-bottom: 22px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
     
-    /* Cards */
+    /* Stats Cards */
     .cards {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 24px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
       margin-bottom: 24px;
     }
     
     .card {
       background: var(--bg-card);
-      padding: 24px;
-      border-radius: 12px;
+      padding: 20px;
+      border-radius: var(--radius-md);
       border: 1px solid var(--border-color);
       box-shadow: var(--shadow-card);
       position: relative;
       overflow: hidden;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-default);
     }
     .card::before {
       content: '';
@@ -218,44 +737,48 @@
       top: 0; right: 0; left: 0; height: 4px;
       background: var(--primary);
     }
+    .card.danger::before { background: var(--danger); }
+    .card.warning::before { background: var(--warning); }
+    .card.success::before { background: var(--success); }
     
     .card .title {
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 600;
       color: var(--text-main);
     }
     .card .num {
-      font-size: 32px;
-      font-weight: 700;
+      font-size: 28px;
+      font-weight: 800;
       color: var(--text-heading);
-      margin-top: 12px;
+      margin-top: 10px;
+      line-height: 1.1;
     }
     
     .progress {
-      height: 8px;
+      height: 7px;
       background: var(--border-color);
       border-radius: 20px;
-      margin-top: 16px;
+      margin-top: 14px;
       overflow: hidden;
     }
     .progress .bar {
       height: 100%;
       background: var(--primary);
       border-radius: 20px;
-      transition: width 1s ease-in-out;
+      transition: width 0.8s ease-in-out;
     }
     
-    /* Panels / Sections */
+    /* Panels */
     .panel {
       background: var(--bg-card);
-      border-radius: 12px;
-      padding: 24px;
+      border-radius: var(--radius-md);
+      padding: 22px;
       border: 1px solid var(--border-color);
       box-shadow: var(--shadow-card);
       margin-bottom: 24px;
     }
     .panel h3 {
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 700;
       color: var(--text-heading);
       margin-bottom: 16px;
@@ -264,27 +787,27 @@
     /* Forms */
     .grid-form {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 20px;
-      margin-bottom: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
     }
     .form-group {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
     }
     label {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
       color: var(--text-heading);
     }
     input, select, textarea {
       width: 100%;
-      padding: 12px 16px;
+      padding: 11px 14px;
       border: 1px solid var(--border-color);
-      border-radius: 8px;
+      border-radius: var(--radius-sm);
       font-family: inherit;
-      font-size: 15px;
+      font-size: 14px;
       color: var(--text-heading);
       background: var(--bg-input);
       transition: border-color 0.2s, box-shadow 0.2s, background 0.3s;
@@ -293,18 +816,18 @@
       outline: none;
       border-color: var(--primary);
       background: var(--bg-card);
-      box-shadow: 0 0 0 3px rgba(60, 80, 224, 0.1);
+      box-shadow: 0 0 0 3px var(--primary-light);
     }
-    textarea { min-height: 100px; resize: vertical; }
+    textarea { min-height: 90px; resize: vertical; }
     
     button.primary {
       background: var(--primary);
       color: white;
       border: none;
-      padding: 12px 24px;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 15px;
+      padding: 11px 22px;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: 14px;
       cursor: pointer;
       font-family: inherit;
       transition: background 0.2s, transform 0.1s;
@@ -322,340 +845,720 @@
     /* Tables */
     .table-container {
       overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
     }
     table {
       width: 100%;
       border-collapse: collapse;
+      text-align: inherit;
+      min-width: 600px;
+    }
+    html[dir="rtl"] table {
       text-align: right;
     }
+    html[dir="ltr"] table {
+      text-align: left;
+    }
     th, td {
-      padding: 16px 20px;
+      padding: 14px 16px;
       border-bottom: 1px solid var(--border-color);
     }
     th {
       background: var(--bg-alt);
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 700;
       color: var(--text-heading);
-      text-transform: uppercase;
+      white-space: nowrap;
     }
     td {
-      font-size: 15px;
+      font-size: 14px;
       color: var(--text-main);
     }
     tr:last-child td { border-bottom: none; }
+    tr:hover td {
+      background: rgba(37, 99, 235, 0.02);
+    }
     
     /* Badges */
     .badge {
-      padding: 6px 12px;
-      border-radius: 30px;
-      font-size: 13px;
-      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
       display: inline-block;
+      white-space: nowrap;
     }
-    .badge.ok { background: rgba(33, 150, 83, 0.1); color: var(--success); }
-    .badge.warn { background: rgba(255, 167, 11, 0.1); color: var(--warning); }
-    .badge.bad { background: rgba(211, 64, 83, 0.1); color: var(--danger); }
-    .badge.neutral { background: rgba(100, 116, 139, 0.1); color: var(--text-main); }
+    .badge.ok { background: var(--success-light); color: var(--success); }
+    .badge.warn { background: var(--warning-light); color: var(--warning); }
+    .badge.bad { background: var(--danger-light); color: var(--danger); }
+    .badge.neutral { background: rgba(148, 163, 184, 0.15); color: var(--text-main); }
     
     /* Recent Updates List */
-    .recent-list { display: flex; flex-direction: column; gap: 16px; }
+    .recent-list { display: flex; flex-direction: column; gap: 12px; }
     .recent-item {
       display: flex;
       flex-direction: column;
-      padding: 16px;
+      padding: 14px;
       background: var(--bg-alt);
-      border-radius: 8px;
-      border-right: 4px solid var(--primary);
+      border-radius: var(--radius-sm);
+      border-inline-start: 4px solid var(--primary);
     }
-    .recent-item strong { color: var(--text-heading); font-size: 15px; }
-    .recent-item span { color: var(--text-main); font-size: 14px; margin-top: 4px; }
-    .recent-item .meta { font-size: 12px; color: #94A3B8; margin-top: 8px; display: flex; gap: 12px; }
+    .recent-item strong { color: var(--text-heading); font-size: 14px; }
+    .recent-item span { color: var(--text-main); font-size: 13px; margin-top: 4px; }
+    .recent-item .meta { font-size: 12px; color: #94A3B8; margin-top: 6px; display: flex; gap: 12px; }
     
     /* Photos Grid */
     .photo-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
       gap: 16px;
     }
     .photo-card {
       background: var(--bg-card);
-      border-radius: 8px;
+      border-radius: var(--radius-sm);
       overflow: hidden;
       border: 1px solid var(--border-color);
       position: relative;
+      box-shadow: var(--shadow-sm);
     }
     .photo-card img {
       width: 100%;
-      height: 160px;
+      height: 150px;
       object-fit: cover;
+      display: block;
     }
     .photo-card .info {
-      padding: 12px;
-      font-size: 14px;
+      padding: 10px 12px;
+      font-size: 13px;
     }
-    .photo-card .date { font-size: 12px; color: #94A3B8; margin-top: 4px; }
+    .photo-card .date { font-size: 11px; color: #94A3B8; margin-top: 4px; }
     
     /* Toast */
     .toast {
       position: fixed;
-      bottom: 30px;
-      left: 30px;
-      background: var(--text-heading);
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #0F172A;
       color: white;
-      padding: 14px 24px;
-      border-radius: 8px;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      padding: 12px 22px;
+      border-radius: 30px;
+      box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.3);
       display: none;
-      z-index: 1000;
+      z-index: 2000;
       font-weight: 600;
-      animation: slideUp 0.3s ease;
+      font-size: 14px;
+      opacity: 0;
+      transition: all 0.3s ease;
+      text-align: center;
+      max-width: 90%;
     }
-    @keyframes slideUp {
-      from { transform: translateY(20px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
+    body.dark .toast {
+      background: #1E293B;
+      border: 1px solid var(--border-color);
+    }
+    .toast.show {
+      display: block;
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
     }
     
-    button.icon-btn { background: transparent; border: none; color: var(--danger); cursor: pointer; padding: 6px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; transition: background 0.2s; }
-    button.icon-btn:hover { background: rgba(211, 64, 83, 0.1); }
-    button.icon-btn svg { width: 18px; height: 18px; }
+    button.icon-btn {
+      background: transparent;
+      border: none;
+      color: var(--danger);
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    button.icon-btn:hover { background: var(--danger-light); }
+    button.icon-btn svg { width: 17px; height: 17px; }
 
-    .theme-toggle { background: transparent; border: none; color: var(--text-main); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 8px; border-radius: 50%; transition: background 0.2s, color 0.2s; }
-    .theme-toggle:hover { background: var(--border-color); color: var(--text-heading); }
-    
-    @media (max-width: 1024px) {
-      .sidebar { width: 240px; }
-      .cards { grid-template-columns: repeat(2, 1fr); }
+    /* Mobile Bottom Navigation */
+    .mobile-bottom-nav {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 62px;
+      background: var(--bg-header);
+      border-top: 1px solid var(--border-color);
+      box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.05);
+      z-index: 85;
+      padding-bottom: env(safe-area-inset-bottom);
+      align-items: center;
+      justify-content: space-around;
     }
-    @media (max-width: 768px) {
-      .app-wrapper { flex-direction: column; }
-      .sidebar { width: 100%; height: auto; border-bottom: 1px solid var(--border-color); }
-      .sidebar-nav { flex-direction: row; overflow-x: auto; padding: 12px; }
-      .sidebar-nav a { white-space: nowrap; flex: 0 0 auto; }
-      .top-header { padding: 16px; height: auto; flex-direction: column; align-items: flex-start; gap: 12px; }
-      .header-actions { align-self: flex-end; }
-      .page-container { padding: 16px; }
-      .cards { grid-template-columns: 1fr; }
-      .grid-form { grid-template-columns: 1fr; }
+    
+    .bottom-nav-item {
+      background: transparent;
+      border: none;
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 6px 10px;
+      flex: 1;
+      transition: color 0.2s;
+    }
+    .bottom-nav-item svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+    .bottom-nav-item.active {
+      color: var(--primary);
+    }
+    
+    /* ==========================================================================
+       RESPONSIVE BREAKPOINTS (Mobile Optimization)
+       ========================================================================== */
+    @media (max-width: 992px) {
+      .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        width: 280px;
+        z-index: 1000;
+        box-shadow: 0 0 25px rgba(0,0,0,0.5);
+      }
+      
+      html[dir="rtl"] .sidebar {
+        right: 0;
+        transform: translateX(100%);
+      }
+      html[dir="rtl"] .sidebar.open {
+        transform: translateX(0);
+      }
+      
+      html[dir="ltr"] .sidebar {
+        left: 0;
+        transform: translateX(-100%);
+      }
+      html[dir="ltr"] .sidebar.open {
+        transform: translateX(0);
+      }
+      
+      .sidebar-close-btn {
+        display: flex;
+      }
+      
+      .mobile-nav-toggle {
+        display: flex;
+      }
+      
+      .mobile-brand-display {
+        display: flex;
+      }
+      
+      .top-header {
+        padding: 0 16px;
+        height: 64px;
+      }
+      
+      .date-badge {
+        display: none;
+      }
+      
+      .page-container {
+        padding: 16px 14px 80px 14px;
+      }
+      
+      .cards {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+      }
+      
+      .mobile-bottom-nav {
+        display: flex;
+      }
+    }
+    
+    @media (max-width: 600px) {
+      .cards {
+        grid-template-columns: 1fr;
+      }
+      
+      .grid-form {
+        grid-template-columns: 1fr;
+      }
+      
+      .top-header .title-area .subtitle {
+        display: none;
+      }
+      
+      .top-header .title-area .title {
+        font-size: 15px;
+      }
+      
+      .panel {
+        padding: 16px 14px;
+      }
+      
+      .login-card {
+        padding: 24px 20px;
+      }
+      
+      .header-actions {
+        gap: 8px;
+      }
+      
+      .user-name {
+        display: none;
+      }
+      
+      .photo-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
     }
   </style>
 </head>
 <body>
 
-<div class="app-wrapper">
-  
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="sidebar-header">
-      <div class="brand">ALMARASEM</div>
+<!-- ==========================================================================
+     LOGIN SCREEN (First Page in Same Code)
+     ========================================================================== -->
+<div id="loginScreen" class="login-wrapper">
+  <div class="login-card">
+    <div class="login-top-bar">
+      <button class="btn-tool" onclick="toggleLang()" title="Toggle Language">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="2" y1="12" x2="22" y2="12"></line>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+        </svg>
+        <span id="loginLangLabel">English</span>
+      </button>
+
+      <button class="btn-tool" onclick="toggleTheme()" title="Toggle Theme" aria-label="Toggle Theme">
+        <svg class="login-sun-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <span class="theme-label-txt" data-i18n="themeLight">المظهر</span>
+      </button>
     </div>
+
+    <div class="login-header">
+      <div class="login-logo-container">
+        <img src="logo.png" alt="ALMARASEM Logo" class="login-logo-img" onerror="this.src=''; this.style.display='none';">
+      </div>
+      <h1 class="login-brand-title" data-i18n="brandTitle">ALMARASEM</h1>
+      <p class="login-brand-subtitle" data-i18n="brandSubtitle">نظام إدارة وتوثيق الموقع الإلكتروني</p>
+      <div class="login-badge-tag" data-i18n="loginWelcome">تسجيل الدخول للنظام</div>
+    </div>
+
+    <form id="loginForm" onsubmit="handleLogin(event)" class="login-form">
+      <div class="form-group">
+        <label for="loginEmail" data-i18n="emailOrUser">البريد الإلكتروني أو اسم المستخدم</label>
+        <div class="input-with-icon">
+          <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <input type="text" id="loginEmail" data-i18n-placeholder="emailPlaceholder" placeholder="admin@almarasem.com أو اسم المستخدم" required autocomplete="username">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="loginPassword" data-i18n="password">كلمة المرور</label>
+        <div class="input-with-icon">
+          <svg class="field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          <input type="password" id="loginPassword" data-i18n-placeholder="passwordPlaceholder" placeholder="••••••••" required autocomplete="current-password">
+          <button type="button" class="pwd-toggle-btn" onclick="togglePasswordVisibility()" aria-label="Toggle password visibility">
+            <svg id="eyeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="login-options">
+        <label class="checkbox-container">
+          <input type="checkbox" id="rememberMe" checked>
+          <span data-i18n="rememberMe">تذكر بيانات الدخول</span>
+        </label>
+      </div>
+
+      <div class="login-actions">
+        <button type="submit" class="btn-login-primary" id="loginSubmitBtn">
+          <span data-i18n="signInBtn">تسجيل الدخول</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+            <polyline points="10 17 15 12 10 7"></polyline>
+            <line x1="15" y1="12" x2="3" y2="12"></line>
+          </svg>
+        </button>
+        
+        <button type="button" class="btn-demo" onclick="handleDemoLogin()">
+          <span data-i18n="demoBtn">دخول سريع / تجريبي (Demo Mode)</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+        </button>
+      </div>
+      
+      <p class="demo-hint-text" data-i18n="demoHint">يمكنك استخدام الدخول السريع لتجربة النظام مباشرة دون إعدادات</p>
+    </form>
+
+    <div class="login-footer">
+      <p>Nexovate Tech &copy; 2026 | Eng. Mohamed Ahmed El-Sheikh</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ==========================================================================
+     MAIN APP APPLICATION
+     ========================================================================== -->
+<div class="app-wrapper" id="appWrapper" style="display: none;">
+  
+  <!-- Backdrop for Mobile Sidebar -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar(false)"></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="brand-wrapper">
+        <div class="brand-logo-frame">
+          <img src="logo.png" alt="ALMARASEM" class="brand-logo" onerror="this.src=''; this.parentElement.style.display='none';">
+        </div>
+        <div class="brand-text">
+          <div class="brand-title">ALMARASEM</div>
+          <div class="brand-subtitle" data-i18n="brandSubtitle">المراسم للمقاولات</div>
+        </div>
+      </div>
+      <button class="sidebar-close-btn" onclick="toggleSidebar(false)" aria-label="Close sidebar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
     <nav class="sidebar-nav">
-      <a class="active" onclick="show('dashboard',this)">
+      <a class="active" onclick="show('dashboard', this)">
         <svg viewBox="0 0 24 24"><path d="M4 13h6a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1zm-1 7a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v4zm10 0a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-7a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v7zm1-10h6a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1z"/></svg>
-        لوحة التحكم
+        <span data-i18n="dashboard">لوحة التحكم</span>
       </a>
-      <a onclick="show('daily',this)">
+      <a onclick="show('daily', this)">
         <svg viewBox="0 0 24 24"><path d="M20 3H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-9 14H5v-2h6v2zm8-4H5v-2h14v2zm0-4H5V7h14v2z"/></svg>
-        التقرير اليومي
+        <span data-i18n="dailyReport">التقرير اليومي</span>
       </a>
-      <a onclick="show('progress',this)">
+      <a onclick="show('progress', this)">
         <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2V5c0-1.103-.897-2-2-2zM9 17H7v-5h2v5zm4 0h-2V7h2v10zm4 0h-2v-3h2v3z"/></svg>
-        متابعة الأعمال
+        <span data-i18n="progress">متابعة الأعمال</span>
       </a>
-      <a onclick="show('issues',this)">
+      <a onclick="show('issues', this)">
         <svg viewBox="0 0 24 24"><path d="M11.953 2C6.465 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.493 2 11.953 2zM12 20c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z"/><path d="M11 7h2v7h-2zm0 8h2v2h-2z"/></svg>
-        RFI / NCR / Issues
+        <span data-i18n="issues">RFI / NCR / Issues</span>
       </a>
-      <a onclick="show('materials',this)">
+      <a onclick="show('materials', this)">
         <svg viewBox="0 0 24 24"><path d="M21 4H3a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1zm-1 14H4V6h16v12z"/><path d="M12 8h6v2h-6zm-6 0h4v2H6zm6 4h6v2h-6zm-6 0h4v2H6zm6 4h6v2h-6zm-6 0h4v2H6z"/></svg>
-        المواد
+        <span data-i18n="materials">إدارة المواد</span>
       </a>
-      <a onclick="show('photos',this)">
+      <a onclick="show('photos', this)">
         <svg viewBox="0 0 24 24"><path d="M20 5h-2.586l-2.707-2.707A.996.996 0 0 0 14 2h-4a.996.996 0 0 0-.707.293L6.586 5H4c-1.103 0-2 .897-2 2v11c0 1.103.897 2 2 2h16c1.103 0 2-.897 2-2V7c0-1.103-.897-2-2-2zm-8 12c-2.71 0-5-2.29-5-5s2.29-5 5-5 5 2.29 5 5-2.29 5-5 5z"/><path d="M12 9c-1.654 0-3 1.346-3 3s1.346 3 3 3 3-1.346 3-3-1.346-3-3-3z"/></svg>
-        صور الموقع
+        <span data-i18n="photos">صور الموقع</span>
       </a>
     </nav>
+
+    <div class="sidebar-footer">
+      <button class="sidebar-logout-btn" onclick="logout()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+        <span data-i18n="logout">تسجيل الخروج</span>
+      </button>
+    </div>
   </aside>
 
+  <!-- Main View -->
   <div class="main-wrapper">
     <!-- Header -->
     <header class="top-header">
-      <div class="title-area">
-        <div class="title">AHMED ESHEEKH</div>
-        <div class="subtitle">Online Site Management System | احدي مشاريع نكسوفيت تك المهندس محمد احمد الشيخ 01033814784</div>
-      </div>
-      <div class="header-actions">
-        <button class="theme-toggle" onclick="toggleTheme()" aria-label="تبديل المظهر">
-          <svg id="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-          <svg id="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+      <div class="header-left-col">
+        <button class="mobile-nav-toggle" onclick="toggleSidebar(true)" aria-label="Open navigation menu">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
         </button>
+
+        <div class="mobile-brand-display">
+          <img src="logo.png" alt="ALMARASEM" class="mobile-header-logo" onerror="this.src=''; this.style.display='none';">
+        </div>
+
+        <div class="title-area">
+          <div class="title" id="headerEngineerName">AHMED ESHEEKH</div>
+          <div class="subtitle" data-i18n="siteSubtitle">احدي مشاريع نكسوفيت تك - م. محمد احمد الشيخ (01033814784)</div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Language Switcher -->
+        <button class="header-action-btn" onclick="toggleLang()" title="Toggle Language / تغيير اللغة">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+          <span id="langSwitchLabel">EN</span>
+        </button>
+
+        <!-- Theme Switcher -->
+        <button class="header-action-btn theme-toggle" onclick="toggleTheme()" aria-label="Toggle Theme" title="تبديل المظهر / Toggle Dark Mode">
+          <svg id="moon-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+          <svg id="sun-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        </button>
+
+        <!-- Date Badge -->
         <div class="date-badge">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
           <span id="today"></span>
+        </div>
+
+        <!-- User Profile Chip -->
+        <div class="user-chip" onclick="logout()" title="تسجيل الخروج / Click to sign out">
+          <div class="user-avatar" id="userAvatar">A</div>
+          <span class="user-name" id="userNameLabel">م. أحمد</span>
+          <button class="logout-icon-btn" aria-label="Sign out">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+          </button>
         </div>
       </div>
     </header>
 
-    <!-- Main Content -->
+    <!-- Main Content Pages -->
     <main class="page-container">
       
-      <!-- Dashboard -->
+      <!-- Dashboard Page -->
       <section id="dashboard" class="page active">
-        <h2 class="page-title">نظرة عامة على المشروع</h2>
+        <h2 class="page-title" data-i18n="overviewTitle">نظرة عامة على المشروع</h2>
         <div class="cards">
           <div class="card">
-            <div class="title">نسبة الإنجاز الكلية</div>
+            <div class="title" data-i18n="overallCompletion">نسبة الإنجاز الكلية</div>
             <div class="num" id="overall">0%</div>
             <div class="progress"><div class="bar" id="overallbar" style="width:0%"></div></div>
           </div>
-          <div class="card">
-            <div class="title">تحديثات اليوم</div>
+          <div class="card success">
+            <div class="title" data-i18n="todayUpdates">تحديثات اليوم</div>
             <div class="num" id="dailyCount">0</div>
           </div>
-          <div class="card">
-            <div class="title">الأعمال المتأخرة</div>
+          <div class="card danger">
+            <div class="title" data-i18n="delayedItems">الأعمال المتأخرة</div>
             <div class="num" id="lateCount" style="color: var(--danger)">0</div>
           </div>
-          <div class="card">
-            <div class="title">المشكلات المفتوحة (Issues/RFI)</div>
+          <div class="card warning">
+            <div class="title" data-i18n="openIssues">المشكلات المفتوحة (Issues/RFI)</div>
             <div class="num" id="issueCount" style="color: var(--warning)">0</div>
           </div>
         </div>
         <div class="panel">
-          <h3>آخر تحديثات الموقع</h3>
-          <div id="recent" class="recent-list">لا توجد تحديثات بعد.</div>
+          <h3 data-i18n="recentUpdatesTitle">آخر تحديثات الموقع</h3>
+          <div id="recent" class="recent-list" data-i18n="noUpdatesYet">لا توجد تحديثات بعد.</div>
         </div>
       </section>
 
-      <!-- Daily Report -->
+      <!-- Daily Report Page -->
       <section id="daily" class="page">
-        <h2 class="page-title">التقرير اليومي</h2>
+        <h2 class="page-title" data-i18n="dailyTitle">التقرير اليومي</h2>
         <div class="panel">
           <div class="grid-form">
             <div class="form-group">
-              <label>المهندس</label>
-              <input id="dEng" placeholder="اسم المهندس">
+              <label data-i18n="engineer">المهندس</label>
+              <input id="dEng" data-i18n-placeholder="engineerPlaceholder" placeholder="اسم المهندس">
             </div>
             <div class="form-group">
-              <label>المنطقة</label>
-              <input id="dArea" placeholder="Lobby / Meeting Room / ...">
+              <label data-i18n="area">المنطقة</label>
+              <input id="dArea" data-i18n-placeholder="areaPlaceholder" placeholder="Lobby / Meeting Room / ...">
             </div>
             <div class="form-group">
-              <label>نسبة الإنجاز %</label>
+              <label data-i18n="completionPct">نسبة الإنجاز %</label>
               <input id="dPct" type="number" min="0" max="100" placeholder="0 - 100">
             </div>
             <div class="form-group">
-              <label>العمالة</label>
-              <input id="dLabor" placeholder="عدد العمال / التخصص">
+              <label data-i18n="manpower">العمالة</label>
+              <input id="dLabor" data-i18n-placeholder="manpowerPlaceholder" placeholder="عدد العمال / التخصص">
             </div>
           </div>
-          <div class="form-group" style="margin-bottom:20px">
-            <label>الأعمال المنفذة</label>
-            <textarea id="dWork" placeholder="اكتب تفاصيل الأعمال التي تمت اليوم..."></textarea>
+          <div class="form-group" style="margin-bottom:18px">
+            <label data-i18n="executedWork">الأعمال المنفذة</label>
+            <textarea id="dWork" data-i18n-placeholder="executedWorkPlaceholder" placeholder="اكتب تفاصيل الأعمال التي تمت اليوم..."></textarea>
           </div>
-          <div class="form-group" style="margin-bottom:20px">
-            <label>المعوقات والملاحظات</label>
-            <textarea id="dNotes" placeholder="أي مشكلات أو ملاحظات؟"></textarea>
+          <div class="form-group" style="margin-bottom:18px">
+            <label data-i18n="notesAndObstacles">المعوقات والملاحظات</label>
+            <textarea id="dNotes" data-i18n-placeholder="notesPlaceholder" placeholder="أي مشكلات أو ملاحظات؟"></textarea>
           </div>
-          <button class="primary" onclick="addDaily()">حفظ التقرير</button>
+          <button class="primary" onclick="addDaily()" data-i18n="saveDaily">حفظ التقرير</button>
         </div>
         <div class="panel">
-          <h3>التقارير المسجلة</h3>
+          <h3 data-i18n="recordedReports">التقارير المسجلة</h3>
           <div class="table-container" id="dailyTable"></div>
         </div>
       </section>
 
-      <!-- Progress -->
+      <!-- Progress Page -->
       <section id="progress" class="page">
-        <h2 class="page-title">متابعة الأعمال</h2>
+        <h2 class="page-title" data-i18n="progressTitle">متابعة الأعمال</h2>
         <div class="panel">
           <div class="grid-form">
-            <div class="form-group"><label>البند</label><input id="pName" placeholder="اسم البند"></div>
-            <div class="form-group"><label>المسؤول</label><input id="pEng" placeholder="المهندس المسؤول"></div>
-            <div class="form-group"><label>المخطط %</label><input id="pPlan" type="number" placeholder="0"></div>
-            <div class="form-group"><label>الفعلي %</label><input id="pActual" type="number" placeholder="0"></div>
+            <div class="form-group"><label data-i18n="itemName">البند</label><input id="pName" data-i18n-placeholder="itemPlaceholder" placeholder="اسم البند"></div>
+            <div class="form-group"><label data-i18n="responsibleEng">المسؤول</label><input id="pEng" data-i18n-placeholder="responsiblePlaceholder" placeholder="المهندس المسؤول"></div>
+            <div class="form-group"><label data-i18n="plannedPct">المخطط %</label><input id="pPlan" type="number" placeholder="0"></div>
+            <div class="form-group"><label data-i18n="actualPct">الفعلي %</label><input id="pActual" type="number" placeholder="0"></div>
           </div>
-          <button class="primary" onclick="addProgress()">إضافة بند</button>
+          <button class="primary" onclick="addProgress()" data-i18n="addProgressItem">إضافة بند</button>
         </div>
-        <div class="panel table-container" id="progressTable"></div>
+        <div class="panel">
+          <h3 data-i18n="progressItemsList">جدول متابعة نسب الإنجاز</h3>
+          <div class="table-container" id="progressTable"></div>
+        </div>
       </section>
 
-      <!-- Issues -->
+      <!-- Issues Page -->
       <section id="issues" class="page">
-        <h2 class="page-title">سجل RFI / NCR / Issues</h2>
+        <h2 class="page-title" data-i18n="issuesTitle">سجل RFI / NCR / Issues</h2>
         <div class="panel">
           <div class="grid-form">
             <div class="form-group">
-              <label>النوع</label>
+              <label data-i18n="issueType">النوع</label>
               <select id="iType">
-                <option>Issue</option>
-                <option>RFI</option>
-                <option>NCR</option>
+                <option value="Issue">Issue</option>
+                <option value="RFI">RFI</option>
+                <option value="NCR">NCR</option>
               </select>
             </div>
-            <div class="form-group"><label>الموضوع</label><input id="iTitle" placeholder="عنوان المشكلة"></div>
-            <div class="form-group"><label>المسؤول</label><input id="iEng" placeholder="المهندس"></div>
+            <div class="form-group"><label data-i18n="issueSubject">الموضوع</label><input id="iTitle" data-i18n-placeholder="issueSubjectPlaceholder" placeholder="عنوان المشكلة"></div>
+            <div class="form-group"><label data-i18n="responsibleEng">المسؤول</label><input id="iEng" data-i18n-placeholder="responsiblePlaceholder" placeholder="المهندس"></div>
             <div class="form-group">
-              <label>الحالة</label>
+              <label data-i18n="issueStatus">الحالة</label>
               <select id="iStatus">
-                <option>Open</option>
-                <option>In Progress</option>
-                <option>Closed</option>
+                <option value="Open">Open</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Closed">Closed</option>
               </select>
             </div>
           </div>
-          <div class="form-group" style="margin-bottom:20px">
-            <label>الوصف</label>
-            <textarea id="iDesc" placeholder="وصف تفصيلي..."></textarea>
+          <div class="form-group" style="margin-bottom:18px">
+            <label data-i18n="issueDesc">الوصف</label>
+            <textarea id="iDesc" data-i18n-placeholder="issueDescPlaceholder" placeholder="وصف تفصيلي..."></textarea>
           </div>
-          <button class="primary" onclick="addIssue()">حفظ المشكلة</button>
+          <button class="primary" onclick="addIssue()" data-i18n="saveIssue">حفظ المشكلة</button>
         </div>
-        <div class="panel table-container" id="issueTable"></div>
+        <div class="panel">
+          <h3 data-i18n="issuesList">قائمة المشكلات المسجلة</h3>
+          <div class="table-container" id="issueTable"></div>
+        </div>
       </section>
 
-      <!-- Materials -->
+      <!-- Materials Page -->
       <section id="materials" class="page">
-        <h2 class="page-title">إدارة المواد</h2>
+        <h2 class="page-title" data-i18n="materialsTitle">إدارة المواد</h2>
         <div class="panel">
           <div class="grid-form">
-            <div class="form-group"><label>المادة</label><input id="mName" placeholder="اسم المادة"></div>
-            <div class="form-group"><label>المطلوب</label><input id="mReq" type="number" placeholder="الكمية المطلوبة"></div>
-            <div class="form-group"><label>الموجود</label><input id="mAvail" type="number" placeholder="الكمية الموجودة"></div>
-            <div class="form-group"><label>المورد</label><input id="mSupplier" placeholder="اسم المورد"></div>
+            <div class="form-group"><label data-i18n="materialName">المادة</label><input id="mName" data-i18n-placeholder="materialPlaceholder" placeholder="اسم المادة"></div>
+            <div class="form-group"><label data-i18n="requiredQty">المطلوب</label><input id="mReq" type="number" placeholder="الكمية المطلوبة"></div>
+            <div class="form-group"><label data-i18n="availableQty">الموجود</label><input id="mAvail" type="number" placeholder="الكمية الموجودة"></div>
+            <div class="form-group"><label data-i18n="supplier">المورد</label><input id="mSupplier" data-i18n-placeholder="supplierPlaceholder" placeholder="اسم المورد"></div>
           </div>
-          <button class="primary" onclick="addMaterial()">إضافة المادة</button>
+          <button class="primary" onclick="addMaterial()" data-i18n="addMaterial">إضافة المادة</button>
         </div>
-        <div class="panel table-container" id="materialTable"></div>
+        <div class="panel">
+          <h3 data-i18n="materialsList">سجل المواد والمخزون</h3>
+          <div class="table-container" id="materialTable"></div>
+        </div>
       </section>
 
-      <!-- Photos -->
+      <!-- Photos Page -->
       <section id="photos" class="page">
-        <h2 class="page-title">صور الموقع</h2>
+        <h2 class="page-title" data-i18n="photosTitle">صور الموقع</h2>
         <div class="panel">
           <div class="form-group" style="margin-bottom:16px">
-            <label>اختيار الصور</label>
-            <input id="photoFiles" type="file" accept="image/*" multiple style="background: white">
+            <label data-i18n="selectPhotos">اختيار الصور</label>
+            <input id="photoFiles" type="file" accept="image/*" multiple>
           </div>
-          <div class="form-group" style="margin-bottom:20px">
-            <label>وصف الصور</label>
-            <input id="photoDesc" placeholder="ماذا توضح هذه الصور؟">
+          <div class="form-group" style="margin-bottom:18px">
+            <label data-i18n="photoDesc">وصف الصور</label>
+            <input id="photoDesc" data-i18n-placeholder="photoDescPlaceholder" placeholder="ماذا توضح هذه الصور؟">
           </div>
-          <button class="primary" onclick="savePhotos()">رفع الصور</button>
-          <p style="font-size:13px; color:var(--text-main); margin-top:12px;">ملاحظة: وضع Online يستخدم Supabase. يرجى إعداد Storage لحفظ الصور عبر الإنترنت.</p>
+          <button class="primary" onclick="savePhotos()" data-i18n="uploadPhotos">رفع الصور</button>
+          <p style="font-size:12px; color:var(--text-main); margin-top:12px;" data-i18n="photosNotice">ملاحظة: يتم حفظ الصور محلياً مع دعم التزامن مع Supabase.</p>
         </div>
         <div class="panel">
-          <h3>معرض الصور</h3>
+          <h3 data-i18n="photoGallery">معرض الصور</h3>
           <div id="photoList" class="photo-grid"></div>
         </div>
       </section>
 
     </main>
   </div>
+
+  <!-- Mobile Bottom Navigation Bar -->
+  <nav class="mobile-bottom-nav">
+    <button class="bottom-nav-item active" onclick="show('dashboard', this)">
+      <svg viewBox="0 0 24 24"><path d="M4 13h6a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1zm-1 7a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v4zm10 0a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-7a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v7zm1-10h6a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1z"/></svg>
+      <span data-i18n="dashboard">الرئيسية</span>
+    </button>
+    <button class="bottom-nav-item" onclick="show('daily', this)">
+      <svg viewBox="0 0 24 24"><path d="M20 3H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-9 14H5v-2h6v2zm8-4H5v-2h14v2zm0-4H5V7h14v2z"/></svg>
+      <span data-i18n="dailyReport">التقرير</span>
+    </button>
+    <button class="bottom-nav-item" onclick="show('progress', this)">
+      <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2h14c1.103 0 2-.897 2-2V5c0-1.103-.897-2-2-2zM9 17H7v-5h2v5zm4 0h-2V7h2v10zm4 0h-2v-3h2v3z"/></svg>
+      <span data-i18n="progress">الإنجاز</span>
+    </button>
+    <button class="bottom-nav-item" onclick="show('issues', this)">
+      <svg viewBox="0 0 24 24"><path d="M11.953 2C6.465 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.493 2 11.953 2zM12 20c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z"/><path d="M11 7h2v7h-2zm0 8h2v2h-2z"/></svg>
+      <span data-i18n="issues">المشكلات</span>
+    </button>
+    <button class="bottom-nav-item" onclick="toggleSidebar(true)">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"></circle><circle cx="12" cy="5" r="2"></circle><circle cx="12" cy="19" r="2"></circle></svg>
+      <span data-i18n="moreMenu">المزيد</span>
+    </button>
+  </nav>
+
 </div>
 
 <div class="toast" id="toast"></div>
 
+<!-- ==========================================================================
+     SCRIPTS (Logic, Auth, Realtime, Translation, Theme)
+     ========================================================================== -->
 <script>
+// --- SUPABASE CONFIG ---
 const SUPABASE_URL = "https://vnkzmuxvzllstvgspovf.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_SBvk0KPkzP-MPTclVPZgEA_VFwj-5gK";
 const ONLINE_ENABLED = SUPABASE_URL.startsWith("https://") &&
@@ -664,199 +1567,821 @@ const ONLINE_ENABLED = SUPABASE_URL.startsWith("https://") &&
 
 const sb = ONLINE_ENABLED
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-      auth:{persistSession:true,autoRefreshToken:true}
+      auth: { persistSession: true, autoRefreshToken: true }
     }) : null;
 
-const K={daily:'ae_daily',progress:'ae_progress',issues:'ae_issues',materials:'ae_materials',photos:'ae_photos'};
-const localGet=k=>JSON.parse(localStorage.getItem(K[k])||'[]');
-const localSet=(k,v)=>localStorage.setItem(K[k],JSON.stringify(v));
-const TABLES={daily:'daily_reports',progress:'work_items',issues:'issues',materials:'materials'};
+// --- LOCAL STORAGE KEYS ---
+const K = { daily: 'ae_daily', progress: 'ae_progress', issues: 'ae_issues', materials: 'ae_materials', photos: 'ae_photos' };
+const localGet = k => JSON.parse(localStorage.getItem(K[k]) || '[]');
+const localSet = (k, v) => localStorage.setItem(K[k], JSON.stringify(v));
+const TABLES = { daily: 'daily_reports', progress: 'work_items', issues: 'issues', materials: 'materials', photos: 'site_photos' };
 
-async function rows(table){
-  if(!ONLINE_ENABLED) return localGet(table);
-  const {data,error}=await sb.from(TABLES[table]).select('*').order('created_at',{ascending:false});
-  if(error){console.error(error);toast('خطأ في الاتصال بقاعدة البيانات');return []}
-  return data||[];
-}
+// --- MULTI-LANGUAGE DICTIONARY (Arabic & English) ---
+const I18N = {
+  ar: {
+    brandTitle: "ALMARASEM",
+    brandSubtitle: "نظام إدارة وتوثيق الموقع الإلكتروني",
+    loginWelcome: "تسجيل الدخول للنظام",
+    emailOrUser: "البريد الإلكتروني أو اسم المستخدم",
+    emailPlaceholder: "admin@almarasem.com أو اسم المستخدم",
+    password: "كلمة المرور",
+    passwordPlaceholder: "••••••••",
+    rememberMe: "تذكر بيانات الدخول",
+    signInBtn: "تسجيل الدخول",
+    demoBtn: "دخول سريع / تجريبي (Demo Mode)",
+    demoHint: "يمكنك استخدام الدخول السريع لتجربة النظام مباشرة دون إعدادات",
+    logout: "تسجيل الخروج",
+    dashboard: "لوحة التحكم",
+    dailyReport: "التقرير اليومي",
+    progress: "متابعة الأعمال",
+    issues: "RFI / NCR / Issues",
+    materials: "إدارة المواد",
+    photos: "صور الموقع",
+    moreMenu: "المزيد",
+    siteSubtitle: "احدي مشاريع نكسوفيت تك - م. محمد احمد الشيخ (01033814784)",
+    overviewTitle: "نظرة عامة على المشروع",
+    overallCompletion: "نسبة الإنجاز الكلية",
+    todayUpdates: "تحديثات اليوم",
+    delayedItems: "الأعمال المتأخرة",
+    openIssues: "المشكلات المفتوحة (Issues/RFI)",
+    recentUpdatesTitle: "آخر تحديثات الموقع",
+    noUpdatesYet: "لا توجد تحديثات بعد.",
+    dailyTitle: "التقرير اليومي للموقع",
+    engineer: "المهندس",
+    engineerPlaceholder: "اسم المهندس المسؤول",
+    area: "المنطقة / الموقع",
+    areaPlaceholder: "Lobby / الدور الأول / واجهات...",
+    completionPct: "نسبة الإنجاز %",
+    manpower: "العمالة",
+    manpowerPlaceholder: "عدد العمال / التخصص",
+    executedWork: "الأعمال المنفذة",
+    executedWorkPlaceholder: "اكتب تفاصيل الأعمال التي تمت اليوم...",
+    notesAndObstacles: "المعوقات والملاحظات",
+    notesPlaceholder: "أي مشكلات أو ملاحظات فنية؟",
+    saveDaily: "حفظ التقرير",
+    recordedReports: "التقارير المسجلة",
+    progressTitle: "متابعة نسب إنجاز بنود الأعمال",
+    itemName: "اسم البند",
+    itemPlaceholder: "اسم البند أو النشاط",
+    responsibleEng: "المسؤول",
+    responsiblePlaceholder: "المهندس المسؤول",
+    plannedPct: "المخطط %",
+    actualPct: "الفعلي %",
+    addProgressItem: "إضافة بند عمل",
+    progressItemsList: "جدول متابعة نسب الإنجاز",
+    issuesTitle: "سجل RFI / NCR / Issues",
+    issueType: "النوع",
+    issueSubject: "الموضوع",
+    issueSubjectPlaceholder: "عنوان المشكلة أو الاستفسار",
+    issueStatus: "الحالة",
+    issueDesc: "الوصف",
+    issueDescPlaceholder: "وصف تفصيلي للمشكلة...",
+    saveIssue: "حفظ المشكلة",
+    issuesList: "قائمة المشكلات المسجلة",
+    materialsTitle: "إدارة وتوريدات المواد",
+    materialName: "المادة",
+    materialPlaceholder: "اسم المادة أو الخامة",
+    requiredQty: "المطلوب",
+    availableQty: "الموجود",
+    supplier: "المورد",
+    supplierPlaceholder: "اسم المورد أو الشركة",
+    addMaterial: "إضافة المادة",
+    materialsList: "سجل المواد والمخزون",
+    photosTitle: "صور الموقع وتوثيق الأعمال",
+    selectPhotos: "اختيار الصور",
+    photoDesc: "وصف الصور",
+    photoDescPlaceholder: "ماذا توضح هذه الصور؟",
+    uploadPhotos: "رفع الصور",
+    photosNotice: "ملاحظة: يتم حفظ الصور محلياً مع دعم التزامن مع Supabase.",
+    photoGallery: "معرض الصور",
+    themeLight: "المظهر",
+    thDate: "التاريخ",
+    thEngineer: "المهندس",
+    thArea: "المنطقة",
+    thCompletion: "الإنجاز",
+    thWork: "الأعمال",
+    thAction: "إجراء",
+    thItem: "البند",
+    thResponsible: "المسؤول",
+    thPlanned: "مخطط",
+    thActual: "فعلي",
+    thStatus: "الحالة",
+    thType: "النوع",
+    thSubject: "الموضوع",
+    thMaterial: "المادة",
+    thRequired: "مطلوب",
+    thAvailable: "موجود",
+    thSupplier: "المورد",
+    badgeOnTrack: "منتظم",
+    badgeBehind: "متأخر",
+    confirmDelete: "هل أنت متأكد من الحذف؟",
+    deletedSuccess: "تم الحذف بنجاح",
+    fillRequired: "يرجى تعبئة الحقول الأساسية",
+    savedSuccess: "تم الحفظ بنجاح",
+    savedOnline: "تم الحفظ Online بنجاح",
+    loginSuccess: "تم تسجيل الدخول بنجاح! أهلاً بك.",
+    loginError: "بيانات الدخول غير صحيحة",
+    emptyPhotos: "يرجى اختيار صور أولاً"
+  },
+  en: {
+    brandTitle: "ALMARASEM",
+    brandSubtitle: "Online Site Management & Tracking System",
+    loginWelcome: "System Sign In",
+    emailOrUser: "Email or Username",
+    emailPlaceholder: "admin@almarasem.com or username",
+    password: "Password",
+    passwordPlaceholder: "••••••••",
+    rememberMe: "Remember my login",
+    signInBtn: "Sign In",
+    demoBtn: "Quick Demo Access",
+    demoHint: "Use Quick Demo Access to explore the dashboard immediately",
+    logout: "Sign Out",
+    dashboard: "Dashboard",
+    dailyReport: "Daily Report",
+    progress: "Work Progress",
+    issues: "RFI / NCR / Issues",
+    materials: "Materials",
+    photos: "Site Photos",
+    moreMenu: "More",
+    siteSubtitle: "A Nexovate Tech Project - Eng. Mohamed Ahmed El-Sheikh (01033814784)",
+    overviewTitle: "Project Overview",
+    overallCompletion: "Overall Completion",
+    todayUpdates: "Today's Updates",
+    delayedItems: "Delayed Work Items",
+    openIssues: "Open Issues / RFIs",
+    recentUpdatesTitle: "Recent Site Updates",
+    noUpdatesYet: "No updates recorded yet.",
+    dailyTitle: "Site Daily Report",
+    engineer: "Engineer",
+    engineerPlaceholder: "Engineer in charge",
+    area: "Zone / Area",
+    areaPlaceholder: "Lobby / 1st Floor / Facades...",
+    completionPct: "Completion %",
+    manpower: "Labor",
+    manpowerPlaceholder: "Workers count / Trade",
+    executedWork: "Executed Works",
+    executedWorkPlaceholder: "Details of work executed today...",
+    notesAndObstacles: "Obstacles & Notes",
+    notesPlaceholder: "Any obstacles or technical notes?",
+    saveDaily: "Save Report",
+    recordedReports: "Recorded Reports",
+    progressTitle: "Work Progress & Milestones",
+    itemName: "Item Name",
+    itemPlaceholder: "Work item or activity",
+    responsibleEng: "Responsible",
+    responsiblePlaceholder: "Responsible engineer",
+    plannedPct: "Planned %",
+    actualPct: "Actual %",
+    addProgressItem: "Add Work Item",
+    progressItemsList: "Progress Tracking Table",
+    issuesTitle: "RFI / NCR / Issues Log",
+    issueType: "Type",
+    issueSubject: "Subject",
+    issueSubjectPlaceholder: "Brief issue title",
+    issueStatus: "Status",
+    issueDesc: "Description",
+    issueDescPlaceholder: "Detailed description of the issue...",
+    saveIssue: "Save Issue",
+    issuesList: "Recorded Issues List",
+    materialsTitle: "Materials Management",
+    materialName: "Material",
+    materialPlaceholder: "Material or supply name",
+    requiredQty: "Required",
+    availableQty: "Available",
+    supplier: "Supplier",
+    supplierPlaceholder: "Supplier or vendor name",
+    addMaterial: "Add Material",
+    materialsList: "Materials & Inventory Log",
+    photosTitle: "Site Photos & Documentation",
+    selectPhotos: "Select Photos",
+    photoDesc: "Photo Description",
+    photoDescPlaceholder: "What do these photos show?",
+    uploadPhotos: "Upload Photos",
+    photosNotice: "Note: Photos are stored locally with Supabase Cloud sync support.",
+    photoGallery: "Photo Gallery",
+    themeLight: "Theme",
+    thDate: "Date",
+    thEngineer: "Engineer",
+    thArea: "Area",
+    thCompletion: "Progress",
+    thWork: "Work Done",
+    thAction: "Action",
+    thItem: "Item",
+    thResponsible: "Responsible",
+    thPlanned: "Planned",
+    thActual: "Actual",
+    thStatus: "Status",
+    thType: "Type",
+    thSubject: "Subject",
+    thMaterial: "Material",
+    thRequired: "Required",
+    thAvailable: "Available",
+    thSupplier: "Supplier",
+    badgeOnTrack: "On Track",
+    badgeBehind: "Behind",
+    confirmDelete: "Are you sure you want to delete this?",
+    deletedSuccess: "Deleted successfully",
+    fillRequired: "Please fill in all required fields",
+    savedSuccess: "Saved successfully",
+    savedOnline: "Saved Online successfully",
+    loginSuccess: "Signed in successfully! Welcome.",
+    loginError: "Invalid username or password",
+    emptyPhotos: "Please choose photos first"
+  }
+};
 
-async function save(table,row){
-  if(!ONLINE_ENABLED){let a=localGet(table);a.unshift(row);localSet(table,a);return true}
-  const {error}=await sb.from(TABLES[table]).insert(row);
-  if(error){console.error(error);toast('تعذر حفظ البيانات Online');return false}
-  return true;
-}
+let currentLang = localStorage.getItem('almarasem_lang') || 'ar';
 
-async function renderOnline(){
-  const [d,p,i,m]=await Promise.all([rows('daily'),rows('progress'),rows('issues'),rows('materials')]);
-  renderData(d,p,i,m,localGet('photos'));
-}
+function applyLanguage(lang) {
+  currentLang = lang;
+  localStorage.setItem('almarasem_lang', lang);
+  document.documentElement.lang = lang;
+  document.documentElement.dir = (lang === 'ar' ? 'rtl' : 'ltr');
 
-document.getElementById('today').textContent = new Date().toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  const dict = I18N[lang];
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (dict[key]) el.textContent = dict[key];
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    if (dict[key]) el.placeholder = dict[key];
+  });
 
-function show(id,b){
-  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  document.querySelectorAll('.sidebar-nav a').forEach(x=>x.classList.remove('active'));
-  b.classList.add('active');
+  const langLabel = document.getElementById('langSwitchLabel');
+  if (langLabel) langLabel.textContent = (lang === 'ar' ? 'EN' : 'عربي');
+  const loginLangLabel = document.getElementById('loginLangLabel');
+  if (loginLangLabel) loginLangLabel.textContent = (lang === 'ar' ? 'English' : 'العربية');
+
+  updateTodayBadge();
   renderOnline();
 }
 
-function toast(s){
-  let t=document.getElementById('toast');
-  t.textContent=s;
-  t.style.display='block';
-  setTimeout(()=>t.style.display='none',3000)
+function toggleLang() {
+  applyLanguage(currentLang === 'ar' ? 'en' : 'ar');
 }
 
-async function addDaily(){
-  const row={date:new Date().toLocaleString('ar-EG'),eng:dEng.value,area:dArea.value,pct:+dPct.value||0,labor:dLabor.value,work:dWork.value,notes:dNotes.value};
-  if(!row.eng || !row.work) return toast('يرجى تعبئة الحقول الأساسية');
-  if(await save('daily',row)){
-    ['dEng','dArea','dPct','dLabor','dWork','dNotes'].forEach(x=>document.getElementById(x).value='');
-    toast(ONLINE_ENABLED?'تم حفظ التقرير Online':'تم حفظ التقرير');
-    renderOnline();
+function updateTodayBadge() {
+  const locale = (currentLang === 'ar' ? 'ar-EG' : 'en-US');
+  const dateEl = document.getElementById('today');
+  if (dateEl) {
+    dateEl.textContent = new Date().toLocaleDateString(locale, {
+      weekday: 'short', year: 'numeric', month: 'short', day: 'numeric'
+    });
   }
 }
 
-async function addProgress(){
-  const row={name:pName.value,eng:pEng.value,plan:+pPlan.value||0,actual:+pActual.value||0};
-  if(!row.name) return toast('يرجى إدخال اسم البند');
-  if(await save('progress',row)){
-    ['pName','pEng','pPlan','pActual'].forEach(x=>document.getElementById(x).value='');
-    toast(ONLINE_ENABLED?'تمت إضافة البند Online':'تمت إضافة البند');
-    renderOnline();
-  }
-}
-
-async function addIssue(){
-  const row={date:new Date().toLocaleString('ar-EG'),type:iType.value,title:iTitle.value,eng:iEng.value,status:iStatus.value,desc:iDesc.value};
-  if(!row.title) return toast('يرجى إدخال الموضوع');
-  if(await save('issues',row)){
-    ['iTitle','iEng','iDesc'].forEach(x=>document.getElementById(x).value='');
-    toast(ONLINE_ENABLED?'تم حفظ المشكلة Online':'تم حفظ المشكلة');
-    renderOnline();
-  }
-}
-
-async function addMaterial(){
-  const row={name:mName.value,req:+mReq.value||0,avail:+mAvail.value||0,supplier:mSupplier.value};
-  if(!row.name) return toast('يرجى إدخال اسم المادة');
-  if(await save('materials',row)){
-    ['mName','mReq','mAvail','mSupplier'].forEach(x=>document.getElementById(x).value='');
-    toast(ONLINE_ENABLED?'تمت إضافة المادة Online':'تمت إضافة المادة');
-    renderOnline();
-  }
-}
-
-function savePhotos(){
-  let fs=[...photoFiles.files],a=localGet('photos');
-  if(!fs.length) return toast('يرجى اختيار صور');
-  fs.forEach(f=>{
-    let r=new FileReader();
-    r.onload=()=>{
-      a.unshift({date:new Date().toLocaleString('ar-EG'),desc:photoDesc.value,img:r.result});
-      localSet('photos',a);
-      renderOnline();
-    };
-    r.readAsDataURL(f);
-  });
-  photoDesc.value = '';
-  photoFiles.value = '';
-  toast(ONLINE_ENABLED?'الصور تحتاج إعداد Supabase Storage ولكن تم الحفظ محلياً':'تم حفظ الصور');
-}
-
-function getBadge(status) {
-  if(['Closed', 'On Track'].includes(status)) return `<span class="badge ok">${status}</span>`;
-  if(['In Progress', 'Open', 'Behind'].includes(status)) return `<span class="badge warn">${status}</span>`;
-  if(['NCR', 'Issue'].includes(status)) return `<span class="badge bad">${status}</span>`;
-  return `<span class="badge neutral">${status}</span>`;
-}
-
-function renderData(d,p,i,m,ph){
-  const todayStr = new Date().toLocaleDateString('ar-EG');
-  dailyCount.textContent = d.filter(x=>(x.date||'').startsWith(todayStr)).length;
-  issueCount.textContent = i.filter(x=>x.status!=='Closed').length;
-  lateCount.textContent = p.filter(x=>+x.actual < +x.plan).length;
-  
-  let avg = p.length ? Math.round(p.reduce((s,x)=>s+(+x.actual||0),0)/p.length) : 0;
-  overall.textContent = avg+'%';
-  overallbar.style.width = avg+'%';
-  
-  recent.innerHTML = d.slice(0,5).map(x=>`
-    <div class="recent-item">
-      <strong>${x.area||'بدون منطقة'} - ${x.work||''}</strong>
-      <span>المهندس: ${x.eng||'—'} | الإنجاز: ${x.pct||0}%</span>
-      <div class="meta">
-        <span>🕒 ${x.date||''}</span>
-      </div>
-    </div>
-  `).join('')||'لا توجد تحديثات بعد.';
-
-  const delIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
-
-  dailyTable.innerHTML=`<table><tr><th>التاريخ</th><th>المهندس</th><th>المنطقة</th><th>الإنجاز</th><th>الأعمال</th><th>إجراء</th></tr>${d.map((x,idx)=>`<tr><td>${x.date||''}</td><td>${x.eng||''}</td><td>${x.area||''}</td><td>${x.pct||0}%</td><td>${x.work||''}</td><td><button class="icon-btn" onclick="delItem('daily', '${ONLINE_ENABLED?x.id:idx}')" title="حذف">${delIcon}</button></td></tr>`).join('')}</table>`;
-  
-  progressTable.innerHTML=`<table><tr><th>البند</th><th>المسؤول</th><th>مخطط</th><th>فعلي</th><th>الحالة</th><th>إجراء</th></tr>${p.map((x,idx)=>`<tr><td>${x.name||''}</td><td>${x.eng||''}</td><td>${x.plan||0}%</td><td>${x.actual||0}%</td><td>${getBadge(+x.actual>=+x.plan?'On Track':'Behind')}</td><td><button class="icon-btn" onclick="delItem('progress', '${ONLINE_ENABLED?x.id:idx}')" title="حذف">${delIcon}</button></td></tr>`).join('')}</table>`;
-  
-  issueTable.innerHTML=`<table><tr><th>النوع</th><th>الموضوع</th><th>المسؤول</th><th>الحالة</th><th>التاريخ</th><th>إجراء</th></tr>${i.map((x,idx)=>`<tr><td>${getBadge(x.type)}</td><td>${x.title||''}</td><td>${x.eng||''}</td><td>${getBadge(x.status)}</td><td>${x.date||''}</td><td><button class="icon-btn" onclick="delItem('issues', '${ONLINE_ENABLED?x.id:idx}')" title="حذف">${delIcon}</button></td></tr>`).join('')}</table>`;
-  
-  materialTable.innerHTML=`<table><tr><th>المادة</th><th>مطلوب</th><th>موجود</th><th>المورد</th><th>إجراء</th></tr>${m.map((x,idx)=>`<tr><td>${x.name||''}</td><td>${x.req||0}</td><td>${x.avail||0}</td><td>${x.supplier||''}</td><td><button class="icon-btn" onclick="delItem('materials', '${ONLINE_ENABLED?x.id:idx}')" title="حذف">${delIcon}</button></td></tr>`).join('')}</table>`;
-  
-  photoList.innerHTML=ph.map((x,idx)=>`
-    <div class="photo-card">
-      <button class="icon-btn" style="position:absolute; top:8px; left:8px; background:rgba(255,255,255,0.9); box-shadow: 0 2px 4px rgba(0,0,0,0.1);" onclick="delItem('photos', '${ONLINE_ENABLED?x.id:idx}')" title="حذف">${delIcon}</button>
-      <img src="${x.img}" alt="Site Photo">
-      <div class="info">
-        <div>${x.desc||'بدون وصف'}</div>
-        <div class="date">${x.date||''}</div>
-      </div>
-    </div>
-  `).join('');
-}
-
-if(ONLINE_ENABLED){
-  ['daily_reports','work_items','issues','materials'].forEach(table=>{
-    sb.channel('almarasem-'+table)
-      .on('postgres_changes',{event:'*',schema:'public',table},()=>renderOnline())
-      .subscribe();
-  });
-}
-renderOnline();
-
+// --- DARK / LIGHT THEME ---
 let isDark = localStorage.getItem('theme') === 'dark';
+
 function applyTheme() {
-  if(isDark) {
+  const moon = document.getElementById('moon-icon');
+  const sun = document.getElementById('sun-icon');
+  const metaColor = document.getElementById('metaThemeColor');
+
+  if (isDark) {
     document.body.classList.add('dark');
-    document.getElementById('moon-icon').style.display = 'block';
-    document.getElementById('sun-icon').style.display = 'none';
+    if (moon) moon.style.display = 'block';
+    if (sun) sun.style.display = 'none';
+    if (metaColor) metaColor.setAttribute('content', '#0B1120');
   } else {
     document.body.classList.remove('dark');
-    document.getElementById('moon-icon').style.display = 'none';
-    document.getElementById('sun-icon').style.display = 'block';
+    if (moon) moon.style.display = 'none';
+    if (sun) sun.style.display = 'block';
+    if (metaColor) metaColor.setAttribute('content', '#2563EB');
   }
 }
+
 function toggleTheme() {
   isDark = !isDark;
   localStorage.setItem('theme', isDark ? 'dark' : 'light');
   applyTheme();
 }
-applyTheme();
+
+// --- AUTH & LOGIN SYSTEM ---
+function checkAuth() {
+  const session = JSON.parse(localStorage.getItem('almarasem_session') || '{}');
+  if (session && session.loggedIn) {
+    showDashboard(session.name || session.email || 'Eng. Ahmed');
+  } else {
+    showLoginScreen();
+  }
+}
+
+function showLoginScreen() {
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('appWrapper').style.display = 'none';
+}
+
+function showDashboard(userName) {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appWrapper').style.display = 'flex';
+  
+  const displayName = userName.includes('@') ? userName.split('@')[0] : userName;
+  const nameLabel = document.getElementById('userNameLabel');
+  if (nameLabel) nameLabel.textContent = displayName;
+  const headerEng = document.getElementById('headerEngineerName');
+  if (headerEng) headerEng.textContent = displayName.toUpperCase();
+  const avatar = document.getElementById('userAvatar');
+  if (avatar) avatar.textContent = displayName.charAt(0).toUpperCase();
+
+  renderOnline();
+}
+
+async function handleLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+
+  if (!email || !password) {
+    return toast(I18N[currentLang].fillRequired);
+  }
+
+  // Attempt Supabase Auth if online
+  if (ONLINE_ENABLED && sb) {
+    try {
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
+      if (!error && data?.user) {
+        saveSession(data.user.email, data.user.email);
+        toast(I18N[currentLang].loginSuccess);
+        return showDashboard(data.user.email);
+      }
+    } catch (err) {
+      console.warn("Supabase auth attempted:", err);
+    }
+  }
+
+  // Fallback demo/offline authentication
+  if (email && password.length >= 3) {
+    saveSession(email, email);
+    toast(I18N[currentLang].loginSuccess);
+    showDashboard(email);
+  } else {
+    toast(I18N[currentLang].loginError);
+  }
+}
+
+function handleDemoLogin() {
+  const demoName = (currentLang === 'ar' ? 'م. أحمد الشيخ' : 'Eng. Ahmed');
+  saveSession('demo@almarasem.com', demoName);
+  toast(I18N[currentLang].loginSuccess);
+  showDashboard(demoName);
+}
+
+function saveSession(email, name) {
+  const session = { loggedIn: true, email: email, name: name, time: new Date().toISOString() };
+  localStorage.setItem('almarasem_session', JSON.stringify(session));
+}
+
+async function logout() {
+  if (confirm(I18N[currentLang].confirmDelete.replace('الحذف', 'تسجيل الخروج').replace('delete this', 'sign out'))) {
+    if (ONLINE_ENABLED && sb) {
+      try { await sb.auth.signOut(); } catch(e){}
+    }
+    localStorage.removeItem('almarasem_session');
+    showLoginScreen();
+  }
+}
+
+function togglePasswordVisibility() {
+  const pwdInput = document.getElementById('loginPassword');
+  if (!pwdInput) return;
+  pwdInput.type = (pwdInput.type === 'password' ? 'text' : 'password');
+}
+
+// --- MOBILE SIDEBAR DRAWER ---
+function toggleSidebar(forceState) {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  if (!sidebar || !overlay) return;
+
+  const isOpen = (typeof forceState === 'boolean') ? forceState : !sidebar.classList.contains('open');
+  if (isOpen) {
+    sidebar.classList.add('open');
+    overlay.classList.add('active');
+  } else {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('active');
+  }
+}
+
+// --- NAVIGATION TABS ---
+function show(id, btn) {
+  document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+  const targetPage = document.getElementById(id);
+  if (targetPage) targetPage.classList.add('active');
+
+  // Synchronize sidebar links
+  document.querySelectorAll('.sidebar-nav a').forEach(a => {
+    a.classList.remove('active');
+    if (a.getAttribute('onclick')?.includes(`'${id}'`)) {
+      a.classList.add('active');
+    }
+  });
+
+  // Synchronize mobile bottom nav
+  document.querySelectorAll('.bottom-nav-item').forEach(b => {
+    b.classList.remove('active');
+    if (b.getAttribute('onclick')?.includes(`'${id}'`)) {
+      b.classList.add('active');
+    }
+  });
+
+  // Close mobile sidebar if open
+  toggleSidebar(false);
+  renderOnline();
+}
+
+function toast(s) {
+  const t = document.getElementById('toast');
+  t.textContent = s;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+// --- DATABASE OPERATIONS ---
+async function rows(table) {
+  if (!ONLINE_ENABLED) return localGet(table);
+  const { data, error } = await sb.from(TABLES[table]).select('*').order('created_at', { ascending: false });
+  if (error) {
+    console.error(error);
+    return localGet(table); // Graceful fallback
+  }
+  return data || [];
+}
+
+async function save(table, row) {
+  if (!ONLINE_ENABLED) {
+    let a = localGet(table);
+    a.unshift(row);
+    localSet(table, a);
+    return true;
+  }
+  const { error } = await sb.from(TABLES[table]).insert(row);
+  if (error) {
+    console.error(error);
+    // Fallback save locally
+    let a = localGet(table);
+    a.unshift(row);
+    localSet(table, a);
+    toast(I18N[currentLang].savedSuccess);
+    return true;
+  }
+  return true;
+}
+
+async function renderOnline() {
+  const [d, p, i, m, ph] = await Promise.all([
+    rows('daily'),
+    rows('progress'),
+    rows('issues'),
+    rows('materials'),
+    rows('photos')
+  ]);
+  renderData(d, p, i, m, ph);
+}
+
+async function addDaily() {
+  const locale = (currentLang === 'ar' ? 'ar-EG' : 'en-US');
+  const dEng = document.getElementById('dEng');
+  const dArea = document.getElementById('dArea');
+  const dPct = document.getElementById('dPct');
+  const dLabor = document.getElementById('dLabor');
+  const dWork = document.getElementById('dWork');
+  const dNotes = document.getElementById('dNotes');
+
+  const row = {
+    date: new Date().toLocaleString(locale),
+    eng: dEng.value.trim(),
+    area: dArea.value.trim(),
+    pct: +dPct.value || 0,
+    labor: dLabor.value.trim(),
+    work: dWork.value.trim(),
+    notes: dNotes.value.trim()
+  };
+
+  if (!row.eng || !row.work) return toast(I18N[currentLang].fillRequired);
+
+  if (await save('daily', row)) {
+    [dEng, dArea, dPct, dLabor, dWork, dNotes].forEach(x => x.value = '');
+    toast(ONLINE_ENABLED ? I18N[currentLang].savedOnline : I18N[currentLang].savedSuccess);
+    renderOnline();
+  }
+}
+
+async function addProgress() {
+  const pName = document.getElementById('pName');
+  const pEng = document.getElementById('pEng');
+  const pPlan = document.getElementById('pPlan');
+  const pActual = document.getElementById('pActual');
+
+  const row = {
+    name: pName.value.trim(),
+    eng: pEng.value.trim(),
+    plan: +pPlan.value || 0,
+    actual: +pActual.value || 0
+  };
+
+  if (!row.name) return toast(I18N[currentLang].fillRequired);
+
+  if (await save('progress', row)) {
+    [pName, pEng, pPlan, pActual].forEach(x => x.value = '');
+    toast(ONLINE_ENABLED ? I18N[currentLang].savedOnline : I18N[currentLang].savedSuccess);
+    renderOnline();
+  }
+}
+
+async function addIssue() {
+  const locale = (currentLang === 'ar' ? 'ar-EG' : 'en-US');
+  const iType = document.getElementById('iType');
+  const iTitle = document.getElementById('iTitle');
+  const iEng = document.getElementById('iEng');
+  const iStatus = document.getElementById('iStatus');
+  const iDesc = document.getElementById('iDesc');
+
+  const row = {
+    date: new Date().toLocaleString(locale),
+    type: iType.value,
+    title: iTitle.value.trim(),
+    eng: iEng.value.trim(),
+    status: iStatus.value,
+    desc: iDesc.value.trim()
+  };
+
+  if (!row.title) return toast(I18N[currentLang].fillRequired);
+
+  if (await save('issues', row)) {
+    [iTitle, iEng, iDesc].forEach(x => x.value = '');
+    toast(ONLINE_ENABLED ? I18N[currentLang].savedOnline : I18N[currentLang].savedSuccess);
+    renderOnline();
+  }
+}
+
+async function addMaterial() {
+  const mName = document.getElementById('mName');
+  const mReq = document.getElementById('mReq');
+  const mAvail = document.getElementById('mAvail');
+  const mSupplier = document.getElementById('mSupplier');
+
+  const row = {
+    name: mName.value.trim(),
+    req: +mReq.value || 0,
+    avail: +mAvail.value || 0,
+    supplier: mSupplier.value.trim()
+  };
+
+  if (!row.name) return toast(I18N[currentLang].fillRequired);
+
+  if (await save('materials', row)) {
+    [mName, mReq, mAvail, mSupplier].forEach(x => x.value = '');
+    toast(ONLINE_ENABLED ? I18N[currentLang].savedOnline : I18N[currentLang].savedSuccess);
+    renderOnline();
+  }
+}
+
+function savePhotos() {
+  const photoFiles = document.getElementById('photoFiles');
+  const photoDesc = document.getElementById('photoDesc');
+  const fs = [...photoFiles.files];
+  const locale = (currentLang === 'ar' ? 'ar-EG' : 'en-US');
+
+  if (!fs.length) return toast(I18N[currentLang].emptyPhotos);
+
+  let promises = fs.map(f => new Promise((resolve) => {
+    const r = new FileReader();
+    r.onload = async () => {
+      const row = {
+        date: new Date().toLocaleString(locale),
+        desc: photoDesc.value.trim(),
+        img: r.result
+      };
+      await save('photos', row);
+      resolve();
+    };
+    r.readAsDataURL(f);
+  }));
+
+  Promise.all(promises).then(() => {
+    photoDesc.value = '';
+    photoFiles.value = '';
+    toast(ONLINE_ENABLED ? I18N[currentLang].savedOnline : I18N[currentLang].savedSuccess);
+    renderOnline();
+  });
+}
+
+function getBadge(status) {
+  const dict = I18N[currentLang];
+  let label = status;
+  if (status === 'On Track') label = dict.badgeOnTrack || 'On Track';
+  else if (status === 'Behind') label = dict.badgeBehind || 'Behind';
+  else if (status === 'Open') label = dict.badgeOpen || 'Open';
+  else if (status === 'In Progress') label = dict.badgeInProgress || 'In Progress';
+  else if (status === 'Closed') label = dict.badgeClosed || 'Closed';
+
+  if (['Closed', 'On Track'].includes(status)) return `<span class="badge ok">${label}</span>`;
+  if (['In Progress', 'Open', 'Behind'].includes(status)) return `<span class="badge warn">${label}</span>`;
+  if (['NCR', 'Issue'].includes(status)) return `<span class="badge bad">${label}</span>`;
+  return `<span class="badge neutral">${label}</span>`;
+}
+
+function renderData(d, p, i, m, ph) {
+  const locale = (currentLang === 'ar' ? 'ar-EG' : 'en-US');
+  const todayStr = new Date().toLocaleDateString(locale);
+  const dict = I18N[currentLang];
+
+  // Dashboard Stats
+  document.getElementById('dailyCount').textContent = d.filter(x => (x.date || '').includes(todayStr) || (x.created_at || '').startsWith(new Date().toISOString().slice(0,10))).length;
+  document.getElementById('issueCount').textContent = i.filter(x => x.status !== 'Closed').length;
+  document.getElementById('lateCount').textContent = p.filter(x => +x.actual < +x.plan).length;
+
+  const avg = p.length ? Math.round(p.reduce((s, x) => s + (+x.actual || 0), 0) / p.length) : 0;
+  document.getElementById('overall').textContent = avg + '%';
+  document.getElementById('overallbar').style.width = avg + '%';
+
+  // Recent Updates
+  const recentEl = document.getElementById('recent');
+  if (d.length === 0) {
+    recentEl.innerHTML = dict.noUpdatesYet;
+  } else {
+    recentEl.innerHTML = d.slice(0, 5).map(x => `
+      <div class="recent-item">
+        <strong>${x.area || '—'} - ${x.work || ''}</strong>
+        <span>${dict.engineer}: ${x.eng || '—'} | ${dict.thCompletion}: ${x.pct || 0}%</span>
+        <div class="meta">
+          <span>🕒 ${x.date || ''}</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  const delIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`;
+
+  // Tables
+  document.getElementById('dailyTable').innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>${dict.thDate}</th>
+          <th>${dict.thEngineer}</th>
+          <th>${dict.thArea}</th>
+          <th>${dict.thCompletion}</th>
+          <th>${dict.thWork}</th>
+          <th>${dict.thAction}</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${d.map((x, idx) => `
+          <tr>
+            <td>${x.date || ''}</td>
+            <td><strong>${x.eng || ''}</strong></td>
+            <td>${x.area || ''}</td>
+            <td><strong>${x.pct || 0}%</strong></td>
+            <td>${x.work || ''}</td>
+            <td><button class="icon-btn" onclick="delItem('daily', '${ONLINE_ENABLED && x.id ? x.id : idx}')" title="${dict.delete || 'Delete'}">${delIcon}</button></td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+
+  document.getElementById('progressTable').innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>${dict.thItem}</th>
+          <th>${dict.thResponsible}</th>
+          <th>${dict.thPlanned}</th>
+          <th>${dict.thActual}</th>
+          <th>${dict.thStatus}</th>
+          <th>${dict.thAction}</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${p.map((x, idx) => `
+          <tr>
+            <td><strong>${x.name || ''}</strong></td>
+            <td>${x.eng || ''}</td>
+            <td>${x.plan || 0}%</td>
+            <td><strong>${x.actual || 0}%</strong></td>
+            <td>${getBadge(+x.actual >= +x.plan ? 'On Track' : 'Behind')}</td>
+            <td><button class="icon-btn" onclick="delItem('progress', '${ONLINE_ENABLED && x.id ? x.id : idx}')" title="${dict.delete || 'Delete'}">${delIcon}</button></td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+
+  document.getElementById('issueTable').innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>${dict.thType}</th>
+          <th>${dict.thSubject}</th>
+          <th>${dict.thResponsible}</th>
+          <th>${dict.thStatus}</th>
+          <th>${dict.thDate}</th>
+          <th>${dict.thAction}</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${i.map((x, idx) => `
+          <tr>
+            <td>${getBadge(x.type)}</td>
+            <td><strong>${x.title || ''}</strong></td>
+            <td>${x.eng || ''}</td>
+            <td>${getBadge(x.status)}</td>
+            <td>${x.date || ''}</td>
+            <td><button class="icon-btn" onclick="delItem('issues', '${ONLINE_ENABLED && x.id ? x.id : idx}')" title="${dict.delete || 'Delete'}">${delIcon}</button></td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+
+  document.getElementById('materialTable').innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>${dict.thMaterial}</th>
+          <th>${dict.thRequired}</th>
+          <th>${dict.thAvailable}</th>
+          <th>${dict.thSupplier}</th>
+          <th>${dict.thAction}</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${m.map((x, idx) => `
+          <tr>
+            <td><strong>${x.name || ''}</strong></td>
+            <td>${x.req || 0}</td>
+            <td><strong>${x.avail || 0}</strong></td>
+            <td>${x.supplier || ''}</td>
+            <td><button class="icon-btn" onclick="delItem('materials', '${ONLINE_ENABLED && x.id ? x.id : idx}')" title="${dict.delete || 'Delete'}">${delIcon}</button></td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+
+  // Photos
+  const photoList = document.getElementById('photoList');
+  if (ph.length === 0) {
+    photoList.innerHTML = `<p style="grid-column: 1/-1; color: var(--text-main); font-size: 13px;">${dict.noUpdatesYet}</p>`;
+  } else {
+    photoList.innerHTML = ph.map((x, idx) => `
+      <div class="photo-card">
+        <button class="icon-btn" style="position:absolute; top:6px; left:6px; background:var(--bg-card); box-shadow:var(--shadow-sm); border:1px solid var(--border-color);" onclick="delItem('photos', '${ONLINE_ENABLED && x.id ? x.id : idx}')" title="${dict.delete || 'Delete'}">${delIcon}</button>
+        <img src="${x.img}" alt="Site Photo" loading="lazy">
+        <div class="info">
+          <div><strong>${x.desc || '—'}</strong></div>
+          <div class="date">${x.date || ''}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+}
 
 async function delItem(table, identifier) {
-  if(!confirm('هل أنت متأكد من الحذف؟')) return;
-  if(!ONLINE_ENABLED) {
+  if (!confirm(I18N[currentLang].confirmDelete)) return;
+
+  if (!ONLINE_ENABLED) {
     let a = localGet(table);
-    a.splice(identifier, 1);
+    a.splice(+identifier, 1);
     localSet(table, a);
-    toast('تم الحذف بنجاح');
+    toast(I18N[currentLang].deletedSuccess);
     renderOnline();
     return;
   }
-  
+
   const { error } = await sb.from(TABLES[table]).delete().eq('id', identifier);
-  if(error) { console.error(error); toast('حدث خطأ أثناء الحذف'); }
-  else { toast('تم الحذف بنجاح'); renderOnline(); }
+  if (error) {
+    console.error(error);
+    // Fallback local deletion
+    let a = localGet(table);
+    a.splice(+identifier, 1);
+    localSet(table, a);
+    toast(I18N[currentLang].deletedSuccess);
+    renderOnline();
+  } else {
+    toast(I18N[currentLang].deletedSuccess);
+    renderOnline();
+  }
 }
+
+// --- REALTIME SUBSCRIPTIONS ---
+if (ONLINE_ENABLED) {
+  ['daily_reports', 'work_items', 'issues', 'materials', 'site_photos'].forEach(table => {
+    sb.channel('almarasem-' + table)
+      .on('postgres_changes', { event: '*', schema: 'public', table }, () => renderOnline())
+      .subscribe();
+  });
+}
+
+// --- INITIALIZE APPLICATION ---
+applyTheme();
+applyLanguage(currentLang);
+checkAuth();
 </script>
 </body>
 </html>
